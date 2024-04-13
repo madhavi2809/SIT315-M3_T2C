@@ -2,16 +2,20 @@
 #include <vector>
 #include <chrono>
 #include <mpi.h>
+#include <fstream>
 
 using namespace std;
 using namespace chrono;
 
 // Partition function to divide the array into two parts
-int partition(vector<int>& arr, int low, int high) {
+int partition(vector<int> &arr, int low, int high)
+{
     int pivot = arr[high];
     int i = low - 1;
-    for (int j = low; j < high; j++) {
-        if (arr[j] < pivot) {
+    for (int j = low; j < high; j++)
+    {
+        if (arr[j] < pivot)
+        {
             i++;
             swap(arr[i], arr[j]);
         }
@@ -21,9 +25,12 @@ int partition(vector<int>& arr, int low, int high) {
 }
 
 // Quicksort function
-void quicksort(vector<int>& arr, int low, int high, int max_array_size) {
-    if (low < high) {
-        if (arr.size() > max_array_size) {
+void quicksort(vector<int> &arr, int low, int high, int max_array_size)
+{
+    if (low < high)
+    {
+        if (arr.size() > max_array_size)
+        {
             cout << "Maximum array size reached. Sorting stopped." << endl;
             return;
         }
@@ -33,7 +40,8 @@ void quicksort(vector<int>& arr, int low, int high, int max_array_size) {
     }
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     MPI_Init(&argc, &argv);
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
@@ -41,19 +49,22 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // Reduced array size
-    const int MAX_ARRAY_SIZE = 300; // Adjust as needed
+    const int MAX_ARRAY_SIZE = 300;
 
     // Generate array
     vector<int> arr;
-    if (world_rank == 0) {
+    if (world_rank == 0)
+    {
         arr.reserve(MAX_ARRAY_SIZE); // Preallocate memory
-        for (int i = MAX_ARRAY_SIZE; i > 0; --i) {
+        for (int i = MAX_ARRAY_SIZE; i > 0; --i)
+        {
             arr.push_back(i);
         }
     }
 
     // Broadcast array size to all processes
-    MPI_Bcast(&MAX_ARRAY_SIZE, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    int temp_max_array_size = MAX_ARRAY_SIZE;
+    MPI_Bcast(&temp_max_array_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     // Scatter array to all processes
     vector<int> local_arr(MAX_ARRAY_SIZE / world_size);
@@ -73,17 +84,24 @@ int main(int argc, char** argv) {
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 
-    // Print sorted array (if sorting completed)
-    if (world_rank == 0) {
-        cout << "Sorted array: \n\n";
-        for (int i = 0; i < MAX_ARRAY_SIZE; i++)
-            cout << sorted_arr[i] << " ";
-        cout << endl;
-    }
-
     // Print execution time (only process 0)
-    if (world_rank == 0) {
-        cout << "\nExecution time: " << duration.count() << " microseconds" << endl;
+    if (world_rank == 0)
+    {
+        cout << "Execution time: " << duration.count() << " microseconds" << endl;
+
+        // Write the resulting array to a text file
+        ofstream outFile("file.txt");
+        if (outFile.is_open())
+        {
+            for (int i = 0; i < MAX_ARRAY_SIZE; i++)
+                outFile << sorted_arr[i] << " ";
+            outFile.close();
+            cout << "Resulting array saved to 'file.txt'." << endl;
+        }
+        else
+        {
+            cerr << "Unable to open file for writing." << endl;
+        }
     }
 
     MPI_Finalize();
