@@ -1,24 +1,21 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <CL/cl.h>
+#include <fstream>
+#include <CL/cl.hpp>
 
 using namespace std;
 using namespace chrono;
 
-// OpenCL error checking macro
-#define CHECK_ERROR(err) \
-    if (err != CL_SUCCESS) { \
-        cerr << "OpenCL error: " << err << endl; \
-        exit(EXIT_FAILURE); \
-    }
-
 // Partition function to divide the array into two parts
-int partition(vector<int>& arr, int low, int high) {
+int partition(vector<int> &arr, int low, int high)
+{
     int pivot = arr[high];
     int i = low - 1;
-    for (int j = low; j < high; j++) {
-        if (arr[j] < pivot) {
+    for (int j = low; j < high; j++)
+    {
+        if (arr[j] < pivot)
+        {
             i++;
             swap(arr[i], arr[j]);
         }
@@ -28,9 +25,12 @@ int partition(vector<int>& arr, int low, int high) {
 }
 
 // Quicksort function
-void quicksort(vector<int>& arr, int low, int high, int max_array_size) {
-    if (low < high) {
-        if (arr.size() > max_array_size) {
+void quicksort(vector<int> &arr, int low, int high, int max_array_size)
+{
+    if (low < high)
+    {
+        if (arr.size() > max_array_size)
+        {
             cout << "Maximum array size reached. Sorting stopped." << endl;
             return;
         }
@@ -40,14 +40,14 @@ void quicksort(vector<int>& arr, int low, int high, int max_array_size) {
     }
 }
 
-int main() {
-    // Reduced array size
-    const int MAX_ARRAY_SIZE = 300; // Adjust as needed
-
-    // Generate array
+int main(int argc, char **argv)
+{
+    // Initialize input data
+    const int MAX_ARRAY_SIZE = 300;
     vector<int> arr(MAX_ARRAY_SIZE);
-    for (int i = MAX_ARRAY_SIZE; i > 0; --i) {
-        arr[MAX_ARRAY_SIZE - i] = i;
+    for (int i = MAX_ARRAY_SIZE; i > 0; --i)
+    {
+        arr.push_back(i);
     }
 
     // Start measuring execution time
@@ -60,14 +60,22 @@ int main() {
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 
-    // Print sorted array
-    cout << "Sorted array: \n\n";
-    for (int i = 0; i < MAX_ARRAY_SIZE; i++)
-        cout << arr[i] << " ";
-    cout << endl;
-
     // Print execution time
-    cout << "\nExecution time: " << duration.count() << " microseconds" << endl;
+    cout << "Execution time: " << duration.count() << " microseconds" << endl;
+
+    // Write the resulting array to a text file
+    ofstream outFile("file.txt");
+    if (outFile.is_open())
+    {
+        for (int i = 0; i < MAX_ARRAY_SIZE; i++)
+            outFile << arr[i] << " ";
+        outFile.close();
+        cout << "Resulting array saved to 'file.txt'." << endl;
+    }
+    else
+    {
+        cerr << "Unable to open file for writing." << endl;
+    }
 
     return 0;
 }
