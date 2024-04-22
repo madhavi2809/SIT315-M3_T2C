@@ -35,7 +35,7 @@ void quicksort(vector<int>& arr, int low, int high, int max_array_size) {
 
 int main() {
     // Reduced array size
-    const int MAX_ARRAY_SIZE = 300; // Adjust as needed
+    const int MAX_ARRAY_SIZE = 100000; // Adjust as needed
 
     // Generate array
     vector<int> arr;
