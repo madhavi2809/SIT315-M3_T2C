@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // Reduced array size
-    const int MAX_ARRAY_SIZE = 300;
+    const int MAX_ARRAY_SIZE = 100000;
 
     // Generate array
     vector<int> arr;
