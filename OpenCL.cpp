@@ -43,7 +43,7 @@ void quicksort(vector<int> &arr, int low, int high, int max_array_size)
 int main(int argc, char **argv)
 {
     // Initialize input data
-    const int MAX_ARRAY_SIZE = 300;
+    const int MAX_ARRAY_SIZE = 100000;
     vector<int> arr(MAX_ARRAY_SIZE);
     for (int i = MAX_ARRAY_SIZE; i > 0; --i)
     {
